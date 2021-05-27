@@ -1,0 +1,17 @@
+version: '3.1'
+services:
+  app:
+    container_name: back-entreprise
+    image: time2it/back-entreprise:1.0
+    ports:
+      - "80:80"
+    depends_on:
+      - db-entreprise
+  db-entreprise:
+    image: postgres:13
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=entreprise-db
