@@ -1,0 +1,106 @@
+# db
+--- 
+apiVersion: v1
+kind: Service
+metadata: 
+  labels: 
+    app: db-entreprise
+  name: db-entreprise
+spec: 
+  clusterIP: None
+  ports: 
+  - name: db-entreprise
+    port: 5432
+    targetPort: 5432
+  selector:
+    app: db-entreprise
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-entreprise
+  labels:
+    app: db-entreprise
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-entreprise
+  template:
+    metadata:
+      labels:
+        app: db-entreprise
+    spec:
+      containers:
+      - name: db-entreprise
+        image: postgres:13
+        env:
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        - name: POSTGRES_DB
+          value: entreprise-db
+        - name: POSTGRES_USER
+          value: postgres
+        - name: POSTGRES_PASSWORD
+          value: root
+        ports:
+        - containerPort: 5432
+          name: db-entreprise
+        volumeMounts:
+        - name: db-data
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: db-data
+        persistentVolumeClaim:
+          claimName: postgres-pv-claim-backend
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pv-claim-backend
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+
+#  backend-entreprise
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: back-entreprise
+  labels:
+    app: back-entreprise
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8081
+    targetPort: 80
+    name: back-entreprise
+  selector:
+    app: back-entreprise
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: back-entreprise
+  labels:
+    app: back-entreprise
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: back-entreprise
+  template:
+    metadata:
+      labels:
+        app: back-entreprise
+    spec:
+      containers:
+      - name: result
+        image: time2it/back-entreprise:1.0
+        ports:
+        - containerPort: 80
+          name: back-entreprise
