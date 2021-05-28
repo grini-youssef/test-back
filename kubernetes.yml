@@ -7,11 +7,11 @@ metadata:
 spec: 
   type: ClusterIP
   ports: 
-    - name: db
+    - name: db-back
       port: 5432
       targetPort: 5432
   selector: 
-    app: db
+    app: db-back
 
 ---
 
@@ -20,19 +20,19 @@ kind: Deployment
 metadata:
   name: postgres-back
   labels:
-    app: db
+    app: db-back
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: db
+      app: db-back
   template:
     metadata:
       labels:
-        app: db
+        app: db-back
     spec:
       containers:
-      - name: db
+      - name: db-back
         image: postgres:13
         env:
         - name: PGDATA
@@ -73,13 +73,13 @@ metadata:
   labels:
     app: back-entreprise
 spec:
-  type: LoadBalancer
   ports:
-  - port: 8081
+  - name: http
+    port: 8081
     targetPort: 8081
-    name: back-entreprise
   selector:
     app: back-entreprise
+  type: LoadBalancer
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -101,8 +101,8 @@ spec:
       - name: result
         image: time2it/back-entreprise:1.0
         ports:
-        - containerPort: 8081
-          name: back-entreprise
+        - name: http
+          containerPort: 8081
         env:
           - name: DBURL
             value: jdbc:postgresql://postgres-back:5432/entreprise-db
