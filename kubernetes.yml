@@ -1,38 +1,38 @@
-# db
+# postgresql
 --- 
 apiVersion: v1
 kind: Service
 metadata: 
-  labels: 
-    app: db-entreprise
-  name: db-entreprise
+  name: postgres-back
 spec: 
-  type: clusterIP
+  type: ClusterIP
   ports: 
-  - name: db-entreprise
-    port: 5432
-    targetPort: 5432
-  selector:
-    app: db-entreprise
+    - name: db
+      port: 5432
+      targetPort: 5432
+  selector: 
+    app: db
+
 ---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: db-deployment
+  name: postgres-back
   labels:
-    app: db-deployment
+    app: db
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: db-deployment
+      app: db
   template:
     metadata:
       labels:
-        app: db-deployment
+        app: db
     spec:
       containers:
-      - name: db-deployment
+      - name: db
         image: postgres:13
         env:
         - name: PGDATA
@@ -45,7 +45,6 @@ spec:
           value: root
         ports:
         - containerPort: 5432
-          name: db-entreprise
         volumeMounts:
         - name: db-data
           mountPath: /var/lib/postgresql/data
@@ -104,3 +103,6 @@ spec:
         ports:
         - containerPort: 8081
           name: back-entreprise
+        env:
+          - name: DBURL
+            value: jdbc:postgresql://postgres-back:5432/entreprise-db
