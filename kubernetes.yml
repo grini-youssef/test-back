@@ -75,7 +75,7 @@ metadata:
 spec:
   ports:
   - name: http
-    port: 80
+    port: 8080
     targetPort: 8080
   selector:
     app: back-entreprise
@@ -98,11 +98,11 @@ spec:
         app: back-entreprise
     spec:
       containers:
-      - name: result
+      - name: back-entreprise
         image: time2it/back-entreprise:1.0
         ports:
         - name: http
           containerPort: 8080
         env:
           - name: DBURL
-            value: jdbc:postgresql://postgres-back/entreprise-db
+            value: jdbc:postgresql://postgres-back:5432/entreprise-db
