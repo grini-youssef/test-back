@@ -7,7 +7,7 @@ metadata:
     app: db-entreprise
   name: db-entreprise
 spec: 
-  clusterIP: None
+  type: clusterIP
   ports: 
   - name: db-entreprise
     port: 5432
@@ -18,21 +18,21 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: db-entreprise
+  name: db-deployment
   labels:
-    app: db-entreprise
+    app: db-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: db-entreprise
+      app: db-deployment
   template:
     metadata:
       labels:
-        app: db-entreprise
+        app: db-deployment
     spec:
       containers:
-      - name: db-entreprise
+      - name: db-deployment
         image: postgres:13
         env:
         - name: PGDATA
@@ -42,7 +42,7 @@ spec:
         - name: POSTGRES_USER
           value: postgres
         - name: POSTGRES_PASSWORD
-          value: rootw
+          value: root
         ports:
         - containerPort: 5432
           name: db-entreprise
@@ -76,8 +76,8 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-  - port: 8080
-    targetPort: 8080
+  - port: 8081
+    targetPort: 8081
     name: back-entreprise
   selector:
     app: back-entreprise
@@ -102,5 +102,5 @@ spec:
       - name: result
         image: time2it/back-entreprise:1.0
         ports:
-        - containerPort: 8080
+        - containerPort: 8081
           name: back-entreprise
